@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.utility.PicassoImageHelper;
+import com.example.irahavoi.popularmovies.view.MovieFragment;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
@@ -18,7 +19,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        Movie movie = (Movie)intent.getSerializableExtra(MainActivity.MOVIE_EXTRA);
+        Movie movie = (Movie)intent.getSerializableExtra(MovieFragment.MOVIE_EXTRA);
 
         setContentView(R.layout.activity_movie_detail);
 

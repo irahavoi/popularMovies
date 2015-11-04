@@ -7,10 +7,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.irahavoi.popularmovies.BuildConfig;
-import com.example.irahavoi.popularmovies.MainActivity;
 import com.example.irahavoi.popularmovies.R;
 import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.utility.JsonUtility;
+import com.example.irahavoi.popularmovies.view.MovieFragment;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class MovieService extends IntentService{
 
         try{
 
-            String orderByPreference = intent.getStringExtra(MainActivity.ORDER_BY_PREFERENCE_EXTRA);
+            String orderByPreference = intent.getStringExtra(MovieFragment.ORDER_BY_PREFERENCE_EXTRA);
             String sortBy = "popularity.desc";
             if(orderByPreference.equals(getString(R.string.pref_sort_by_rating))){
                 sortBy = "vote_average.desc";
@@ -79,8 +79,8 @@ public class MovieService extends IntentService{
             moviesJsonStr = buffer.toString();
             List<Movie> movies = JsonUtility.getMoviesFromJson(moviesJsonStr);
 
-            Intent moviesResponseIntent = new Intent(MainActivity.RECEIVE_MOVIES);
-            moviesResponseIntent.putExtra(MainActivity.MOVIES_EXTRA, (ArrayList)movies);
+            Intent moviesResponseIntent = new Intent(MovieFragment.RECEIVE_MOVIES);
+            moviesResponseIntent.putExtra(MovieFragment.MOVIES_EXTRA, (ArrayList)movies);
             LocalBroadcastManager.getInstance(this).sendBroadcast(moviesResponseIntent);
 
 
