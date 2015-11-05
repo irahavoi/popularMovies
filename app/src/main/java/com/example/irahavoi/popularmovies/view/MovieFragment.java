@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -16,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
-import com.example.irahavoi.popularmovies.MovieDetailActivity;
 import com.example.irahavoi.popularmovies.R;
 import com.example.irahavoi.popularmovies.SettingsActivity;
 import com.example.irahavoi.popularmovies.adapter.MoviePreviewAdapter;
@@ -68,9 +68,9 @@ public class MovieFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                intent.putExtra(MOVIE_EXTRA, mMoviePreviewAdapter.getMovies().get(position));
-                startActivity(intent);
+                //TODO: pass URI
+                Movie movie = mMoviePreviewAdapter.getMovies().get(position);
+                ((Callback) getActivity()).onItemSelected(null, movie);
             }
         });
     }
@@ -111,6 +111,10 @@ public class MovieFragment extends Fragment {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public interface Callback{
+        public void onItemSelected(Uri uri, Movie mOvie);
     }
 
 }

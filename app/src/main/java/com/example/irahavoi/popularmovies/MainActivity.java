@@ -1,22 +1,36 @@
 package com.example.irahavoi.popularmovies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity{
+import com.example.irahavoi.popularmovies.domain.Movie;
+import com.example.irahavoi.popularmovies.view.MovieDetailFragment;
+import com.example.irahavoi.popularmovies.view.MovieFragment;
 
+public class MainActivity extends AppCompatActivity implements MovieFragment.Callback, MovieDetailFragment.OnFragmentInteractionListener{
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        if (false) {
-            //todo: logic for 2-pane layout
+        if (findViewById(R.id.movie_detail) != null) {
+            mTwoPane = true;
+            if(savedInstanceState == null){
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_detail, new MovieDetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
         } else {
+            mTwoPane = false;
             getSupportActionBar().setElevation(0f);
         }
     }
@@ -38,5 +52,34 @@ public class MainActivity extends AppCompatActivity{
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Uri uri, Movie movie) {
+        if(mTwoPane){
+            Bundle args = new Bundle();
+            args.putParcelable(MovieDetailFragment.DETAIL_URI, uri);
+            args.putParcelable(MovieDetailFragment.SELECTED_MOVIE, movie);
+
+            MovieDetailFragment fragment = new MovieDetailFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.movie_detail, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+
+            Toast.makeText(this, "Fragment Initialized!", Toast.LENGTH_LONG).show();
+        } else{
+            Intent intent = new Intent(this, MovieDetailActivity.class)
+                    .setData(uri);
+
+            startActivity(intent);
+
+        }
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        Toast.makeText(this, "TODO: figure out how to use the onFragmentInteraction method", Toast.LENGTH_LONG);
     }
 }

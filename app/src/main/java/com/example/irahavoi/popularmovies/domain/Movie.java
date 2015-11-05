@@ -1,10 +1,13 @@
 package com.example.irahavoi.popularmovies.domain;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.Serializable;
 import java.util.List;
 
 
-public class Movie implements Serializable {
+public class Movie implements Serializable ,Parcelable {
     private Long id;
     private Boolean adult;
     private List<Long> genreIds;
@@ -121,5 +124,15 @@ public class Movie implements Serializable {
 
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 }

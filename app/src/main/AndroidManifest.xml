@@ -26,10 +26,6 @@
         <service android:name=".service.MovieService" />
 
         <activity
-            android:name=".DetailActivity"
-            android:label="@string/title_activity_detail" >
-        </activity>
-        <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
