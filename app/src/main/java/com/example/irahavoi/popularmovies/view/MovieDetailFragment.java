@@ -1,15 +1,18 @@
 package com.example.irahavoi.popularmovies.view;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.irahavoi.popularmovies.R;
 import com.example.irahavoi.popularmovies.domain.Movie;
+import com.example.irahavoi.popularmovies.utility.PicassoImageHelper;
 
 import org.w3c.dom.Text;
 
@@ -68,8 +71,20 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         if(this.getArguments() != null){
             Movie movie = (Movie)this.getArguments().getParcelable(SELECTED_MOVIE);
 
+            ImageView thumbnailView = (ImageView)detailView.findViewById(R.id.movie_thumbnail);
             TextView titleView = (TextView)detailView.findViewById(R.id.originalTitle);
+            TextView overviewView = (TextView)detailView.findViewById(R.id.overview);
+            TextView ratingView = (TextView)detailView.findViewById(R.id.rating);
+            TextView releaseDateView = (TextView)detailView.findViewById(R.id.releaseDate);
+
+            Drawable defaultImage = getResources().getDrawable(R.drawable.movie);
+            PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), getActivity(), thumbnailView, defaultImage);
+            movie.getPosterPath();
+
             titleView.setText(movie.getOriginalTitle());
+            overviewView.setText(movie.getOverview());
+            ratingView.setText(movie.getVoteAverage().toString());
+            releaseDateView.setText(movie.getReleaseDate());
         }
 
         // Inflate the layout for this fragment
