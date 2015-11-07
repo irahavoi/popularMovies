@@ -1,71 +1,10 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_forecast"
+    android:name="com.example.irahavoi.popularmovies.view.MovieDetailFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context="com.example.irahavoi.popularmovies.MovieDetailActivity"
-    android:orientation="vertical">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/movie_thumbnail"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="140dp"
-            android:src="@drawable/movie"/>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="10dp">
-            <TextView
-                android:id="@+id/originalTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Some Title"/>
-            <TextView
-                android:id="@+id/overview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Some OVerview"
-                android:layout_marginBottom="10dp"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Rating: "/>
-                <TextView
-                    android:id="@+id/rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="1.2: "/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Released: "/>
-                <TextView
-                    android:id="@+id/releaseDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2001/01/02: "/>
-            </LinearLayout>
-        </LinearLayout>
-
-    </LinearLayout>
-
-
-
-</LinearLayout>
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    tools:context="com.example.irahavoi.popularmovies.view.MovieDetailFragment"
+    tools:layout="@android:layout/list_content" />

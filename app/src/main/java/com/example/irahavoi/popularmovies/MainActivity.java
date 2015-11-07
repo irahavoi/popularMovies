@@ -12,6 +12,8 @@ import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.view.MovieDetailFragment;
 import com.example.irahavoi.popularmovies.view.MovieFragment;
 
+import java.io.Serializable;
+
 public class MainActivity extends AppCompatActivity implements MovieFragment.Callback, MovieDetailFragment.OnFragmentInteractionListener{
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -67,13 +69,13 @@ public class MainActivity extends AppCompatActivity implements MovieFragment.Cal
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.movie_detail, fragment, DETAILFRAGMENT_TAG)
                     .commit();
-
-            Toast.makeText(this, "Fragment Initialized!", Toast.LENGTH_LONG).show();
         } else{
             Intent intent = new Intent(this, MovieDetailActivity.class)
                     .setData(uri);
 
+            intent.putExtra(MovieDetailFragment.SELECTED_MOVIE, (Serializable)movie);
             startActivity(intent);
+
 
         }
     }

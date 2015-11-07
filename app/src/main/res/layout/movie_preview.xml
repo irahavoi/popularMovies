@@ -2,14 +2,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:padding="1dp"
-    android:id="@+id/moviePreview"
-    android:paddingLeft="5dp">
+    android:id="@+id/moviePreview">
 
 
     <ImageView
         android:id="@+id/movie_thumbnail"
         android:layout_width="match_parent"
-        android:layout_height="145dp" />
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"/>
 
 </FrameLayout>

@@ -2,7 +2,61 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    </style>
+    <style name="MovieDetailsContainer">
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="MovieTitle">
+        <item name="android:textColor">#fffff2</item>
+        <item name="android:background">#009688</item>
+        <item name="android:textSize">20dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="MovieHeader">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="ReleaseDate">
+        <item name="android:textSize">18dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Rating">
+        <item name="android:textSize">12dp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:paddingTop">10dp</item>
+        <item name="android:paddingBottom">10dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="FavoriteButton">
+        <item name="android:textColor">#fffff2</item>
+        <item name="android:textSize">8dp</item>
+        <item name="android:layout_width">70dp</item>
+        <item name="android:layout_height">30dp</item>
+    </style>
+
+    <style name="Divisor">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">#bababa</item>
+        <item name="android:paddingTop">5dp</item>
+        <item name="android:paddingBottom">5dp</item>
     </style>
 
 </resources>

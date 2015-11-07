@@ -22,6 +22,29 @@ public class Movie implements Serializable ,Parcelable {
     private Double voteAverage;
     private Integer voteCount;
 
+    public Movie(){}
+
+    public Movie(Parcel in) {
+        originalLanguage = in.readString();
+        originalTitle = in.readString();
+        overview = in.readString();
+        releaseDate = in.readString();
+        posterPath = in.readString();
+        title = in.readString();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
     public Long getId() {
         return id;
     }
@@ -133,6 +156,11 @@ public class Movie implements Serializable ,Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-
+        dest.writeString(originalLanguage);
+        dest.writeString(originalTitle);
+        dest.writeString(overview);
+        dest.writeString(releaseDate);
+        dest.writeString(posterPath);
+        dest.writeString(title);
     }
 }

@@ -1,41 +1,31 @@
 package com.example.irahavoi.popularmovies;
 
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.irahavoi.popularmovies.domain.Movie;
-import com.example.irahavoi.popularmovies.utility.PicassoImageHelper;
-import com.example.irahavoi.popularmovies.view.MovieFragment;
+import com.example.irahavoi.popularmovies.view.MovieDetailFragment;
 
-public class MovieDetailActivity extends AppCompatActivity {
+public class MovieDetailActivity extends AppCompatActivity implements MovieDetailFragment.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent intent = getIntent();
-        Movie movie = (Movie)intent.getSerializableExtra(MovieFragment.MOVIE_EXTRA);
-
         setContentView(R.layout.activity_movie_detail);
+        if(savedInstanceState == null){
+            Movie movie = (Movie)getIntent().getSerializableExtra(MovieDetailFragment.SELECTED_MOVIE);
+            Bundle arguments = new Bundle();
+            arguments.putParcelable(MovieDetailFragment.SELECTED_MOVIE, movie);
+            MovieDetailFragment detailFragment = new MovieDetailFragment();
+            detailFragment.setArguments(arguments);
 
-        ImageView thumbnailView = (ImageView) findViewById(R.id.movie_thumbnail);
-        TextView originalTitleView = (TextView) findViewById(R.id.originalTitle);
-        TextView overviewView = (TextView) findViewById((R.id.overview));
-        TextView ratingView = (TextView) findViewById(R.id.rating);
-        TextView releaseDateView = (TextView)findViewById(R.id.releaseDate);
-
-        originalTitleView.setText(movie.getOriginalTitle());
-        overviewView.setText(movie.getOverview());
-        ratingView.setText(movie.getVoteAverage().toString());
-        releaseDateView.setText(movie.getReleaseDate());
-
-        Drawable defaultImage = getResources().getDrawable(R.drawable.movie);
-        PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), this, thumbnailView, defaultImage);
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.movie_detail, detailFragment).commit();
+        }
     }
 
     @Override
@@ -55,5 +45,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        //TODO.
     }
 }

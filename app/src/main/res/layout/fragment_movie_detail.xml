@@ -1,64 +1,70 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillViewport="true"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context="com.example.irahavoi.popularmovies.view.MovieDetailFragment"
-    android:orientation="vertical">
-
+    android:layout_width="match_parent"
+    android:visibility="invisible">
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/movie_thumbnail"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="140dp" />
+        style="@style/MovieDetailsContainer"
+        android:id="@+id/movie_detail">
+        <TextView
+            android:id="@+id/originalTitle"
+            style="@style/MovieTitle" />
+
 
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="10dp">
-            <TextView
-                android:id="@+id/originalTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"/>
-            <TextView
-                android:id="@+id/overview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"/>
+            style="@style/MovieHeader">
+
+            <ImageView
+                android:id="@+id/movie_thumbnail"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="140dp"
+                android:contentDescription="@string/poster" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/rating"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="20dp"
+                android:paddingTop="10dp">
                 <TextView
                     android:id="@+id/releaseDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    style="@style/ReleaseDate" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:id="@+id/rating"
+                        style="@style/Rating" />
+                    <TextView
+                        style="@style/Rating"
+                        android:text="@string/out_of_ten" />
+                </LinearLayout>
+                <Button
+                    style="@style/FavoriteButton"
+                    android:background="@drawable/buttonshape"
+                    android:text="@string/markAsFavorite"/>
+
             </LinearLayout>
         </LinearLayout>
-
+        <TextView
+            android:id="@+id/overview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"/>
+        <View style="@style/Divisor"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/trailers"/>
+        <View style="@style/Divisor"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reviews"/>
     </LinearLayout>
-
-
-
-</LinearLayout>
+</ScrollView>

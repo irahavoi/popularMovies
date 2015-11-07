@@ -16,6 +16,8 @@ import com.example.irahavoi.popularmovies.utility.PicassoImageHelper;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -69,6 +71,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
                              Bundle savedInstanceState) {
         View detailView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         if(this.getArguments() != null){
+            detailView.setVisibility(View.VISIBLE);
             Movie movie = (Movie)this.getArguments().getParcelable(SELECTED_MOVIE);
 
             ImageView thumbnailView = (ImageView)detailView.findViewById(R.id.movie_thumbnail);
@@ -83,8 +86,11 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
 
             titleView.setText(movie.getOriginalTitle());
             overviewView.setText(movie.getOverview());
-            ratingView.setText(movie.getVoteAverage().toString());
-            releaseDateView.setText(movie.getReleaseDate());
+
+            String rating = movie.getVoteAverage() != null ? movie.getVoteAverage().toString() : "";
+            ratingView.setText(rating);
+            String date = movie.getReleaseDate() != null ? movie.getReleaseDate().substring(0, movie.getReleaseDate().indexOf("-")) : "";
+            releaseDateView.setText(date);
         }
 
         // Inflate the layout for this fragment
