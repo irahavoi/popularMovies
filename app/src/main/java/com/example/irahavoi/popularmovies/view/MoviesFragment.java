@@ -22,11 +22,14 @@ import com.example.irahavoi.popularmovies.SettingsActivity;
 import com.example.irahavoi.popularmovies.adapter.MoviePreviewAdapter;
 import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.service.MovieService;
+import com.example.irahavoi.popularmovies.utility.MovieServiceOperation;
 import com.example.irahavoi.popularmovies.utility.Utility;
 
 import java.util.List;
 
-public class MovieFragment extends Fragment {
+import static com.example.irahavoi.popularmovies.utility.Constants.SERVICE_OPERATION_NAME;
+
+public class MoviesFragment extends Fragment {
 
     public static final String RECEIVE_MOVIES = "com.example.irahavoi.popularmovies.ReceiveMovies";
     public static final String MOVIE_EXTRA = "movieExtra";
@@ -40,7 +43,7 @@ public class MovieFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             if(intent.getAction().equals(RECEIVE_MOVIES)){
-                MovieFragment.this.handleBroadcast(intent);
+                MoviesFragment.this.handleBroadcast(intent);
             }
         }
     };
@@ -78,6 +81,7 @@ public class MovieFragment extends Fragment {
     private void startMovieService(){
         mOrderByPref = Utility.getOrderByPreference(getActivity());
         Intent intent = new Intent(getActivity(), MovieService.class);
+        intent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIES);
         intent.putExtra(ORDER_BY_PREFERENCE_EXTRA, mOrderByPref);
         getActivity().startService(intent);
     }

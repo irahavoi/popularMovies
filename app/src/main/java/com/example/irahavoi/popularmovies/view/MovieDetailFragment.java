@@ -1,40 +1,54 @@
 package com.example.irahavoi.popularmovies.view;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.irahavoi.popularmovies.R;
 import com.example.irahavoi.popularmovies.domain.Movie;
+import com.example.irahavoi.popularmovies.domain.Review;
+import com.example.irahavoi.popularmovies.domain.Trailer;
+import com.example.irahavoi.popularmovies.service.MovieService;
+import com.example.irahavoi.popularmovies.utility.MovieServiceOperation;
 import com.example.irahavoi.popularmovies.utility.PicassoImageHelper;
 
-import org.w3c.dom.Text;
+import java.util.List;
 
-import java.text.SimpleDateFormat;
+import static com.example.irahavoi.popularmovies.utility.Constants.SERVICE_OPERATION_NAME;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MovieDetailFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link MovieDetailFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class MovieDetailFragment extends android.support.v4.app.Fragment {
     public static final String DETAIL_URI = "URI";
-    public static final String SELECTED_MOVIE = "SELECTED_MOVIE";
+    public static final String SELECTED_MOVIE_ID = "selectedMovieId";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    public static final String RECEIVE_TRAILERS = "com.example.irahavoi.popularmovies.ReceiveTrailers";
+    public static final String RECEIVE_REVIEWS = "com.example.irahavoi.popularmovies.ReceiveReviews";
+    public static final String TRAILERS_EXTRA = "trailersExtra";
+    public static final String REVIEWS_EXTRA = "reviewsExtra";
+
+    private Activity mActivity;
 
     private OnFragmentInteractionListener mListener;
+
+    private BroadcastReceiver movieMetadataBroadCastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(RECEIVE_REVIEWS) || intent.getAction().equals(RECEIVE_TRAILERS)){
+                MovieDetailFragment.this.handleBroadcast(intent);
+            }
+        }
+    };
 
     /**
      * Use this factory method to create a new instance of
@@ -48,8 +62,6 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     public static MovieDetailFragment newInstance(String param1, String param2) {
         MovieDetailFragment fragment = new MovieDetailFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,25 +84,13 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         View detailView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         if(this.getArguments() != null){
             detailView.setVisibility(View.VISIBLE);
-            Movie movie = (Movie)this.getArguments().getParcelable(SELECTED_MOVIE);
+            Movie movie = (Movie)this.getArguments().getParcelable(SELECTED_MOVIE_ID);
+            renderMovieDetails(movie, detailView);
 
-            ImageView thumbnailView = (ImageView)detailView.findViewById(R.id.movie_thumbnail);
-            TextView titleView = (TextView)detailView.findViewById(R.id.originalTitle);
-            TextView overviewView = (TextView)detailView.findViewById(R.id.overview);
-            TextView ratingView = (TextView)detailView.findViewById(R.id.rating);
-            TextView releaseDateView = (TextView)detailView.findViewById(R.id.releaseDate);
+            registerMetadataBroadCastReceiver();
+            startMovieMetadataServices(movie);
 
-            Drawable defaultImage = getResources().getDrawable(R.drawable.movie);
-            PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), getActivity(), thumbnailView, defaultImage);
-            movie.getPosterPath();
 
-            titleView.setText(movie.getOriginalTitle());
-            overviewView.setText(movie.getOverview());
-
-            String rating = movie.getVoteAverage() != null ? movie.getVoteAverage().toString() : "";
-            ratingView.setText(rating);
-            String date = movie.getReleaseDate() != null ? movie.getReleaseDate().substring(0, movie.getReleaseDate().indexOf("-")) : "";
-            releaseDateView.setText(date);
         }
 
         // Inflate the layout for this fragment
@@ -107,6 +107,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        mActivity = activity;
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
@@ -136,4 +137,63 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
+    private void renderMovieDetails(Movie movie, View detailView){
+        ImageView thumbnailView = (ImageView)detailView.findViewById(R.id.movie_thumbnail);
+        TextView titleView = (TextView)detailView.findViewById(R.id.originalTitle);
+        TextView overviewView = (TextView)detailView.findViewById(R.id.overview);
+        TextView ratingView = (TextView)detailView.findViewById(R.id.rating);
+        TextView releaseDateView = (TextView)detailView.findViewById(R.id.releaseDate);
+
+        Drawable defaultImage = getResources().getDrawable(R.drawable.movie);
+        PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), getActivity(), thumbnailView, defaultImage);
+        movie.getPosterPath();
+
+        titleView.setText(movie.getOriginalTitle());
+        overviewView.setText(movie.getOverview());
+
+        String rating = movie.getVoteAverage() != null ? movie.getVoteAverage().toString() : "";
+        ratingView.setText(rating);
+        String date = movie.getReleaseDate() != null ? movie.getReleaseDate().substring(0, movie.getReleaseDate().indexOf("-")) : "";
+        releaseDateView.setText(date);
+    }
+
+    public void registerMetadataBroadCastReceiver(){
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIVE_TRAILERS);
+        intentFilter.addAction(RECEIVE_REVIEWS);
+        localBroadcastManager.registerReceiver(movieMetadataBroadCastReceiver, intentFilter);
+    }
+
+    public void startMovieMetadataServices(Movie movie){
+        Intent trailersIntent = new Intent(getActivity(), MovieService.class);
+        Intent reviewsIntent = new Intent(getActivity(), MovieService.class);
+
+        trailersIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
+        reviewsIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
+        trailersIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_TRAILERS);
+        reviewsIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_REVIEWS);
+        getActivity().startService(trailersIntent);
+        getActivity().startService(reviewsIntent);
+    }
+
+    private void handleBroadcast(Intent intent){
+        String action = intent.getAction();
+        if(RECEIVE_REVIEWS.equals(action)){
+            handleReviewsBroadcast(intent);
+        } else if(RECEIVE_TRAILERS.equals(action)){
+            handleTrailersBroadcast(intent);
+        }
+
+    }
+
+    private void handleReviewsBroadcast(Intent intent){
+        List<Review> reviews  = (List<Review>)intent.getSerializableExtra(REVIEWS_EXTRA);
+        Toast.makeText(mActivity, "GOT " + reviews.size() + " REVIEWS!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleTrailersBroadcast(Intent intent){
+        List<Trailer> trailers  = (List<Trailer>)intent.getSerializableExtra(TRAILERS_EXTRA);
+        Toast.makeText(mActivity, "GOT " + trailers.size() + " TRAILERS!", Toast.LENGTH_SHORT).show();
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.irahavoi.popularmovies.utility;
 
 import com.example.irahavoi.popularmovies.domain.Movie;
+import com.example.irahavoi.popularmovies.domain.Review;
+import com.example.irahavoi.popularmovies.domain.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -10,14 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JsonUtility {
+    private final static String RESULTS = "results";
+    private final static String ID = "id";
+
     public static List<Movie> getMoviesFromJson(String json){
         List<Movie> movies = new ArrayList<>();
-        final String RESULTS = "results";
 
         //Movie Data:
         final String ADULT = "adult";
         final String GENRE_IDS = "genre_ids";
-        final String ID = "id";
         final String ORIGINAL_LANGUAGE = "original_language";
         final String ORIGINAL_TITLE = "original_title";
         final String OVERVIEW = "overview";
@@ -28,6 +31,7 @@ public class JsonUtility {
         final String VIDEO = "video";
         final String VOTE_AVERAGE = "vote_average";
         final String VOTE_COUNT =  "vote_count";
+
 
         try{
             JSONObject moviesJson = new JSONObject(json);
@@ -70,5 +74,69 @@ public class JsonUtility {
 
         return movies;
 
+    }
+
+    public static List<Trailer> getTrailersFromJson(String json){
+        List<Trailer> trailers = new ArrayList<>();
+
+        final String ISO_639_1 = "iso_639_1";
+        final String KEY = "key";
+        final String NAME = "name";
+        final String SITE = "site";
+        final String SIZE = "size";
+        final String TYPE = "type";
+
+        try{
+            JSONObject trailersJson = new JSONObject(json);
+            JSONArray trailersArray = trailersJson.getJSONArray(RESULTS);
+
+            for(int i = 0; i < trailersArray.length(); i++){
+                Trailer trailer = new Trailer();
+                JSONObject trailerJson = trailersArray.getJSONObject(i);
+
+                trailer.setId(trailerJson.getString(ID));
+                trailer.setIso639_2(trailerJson.getString(ISO_639_1));
+                trailer.setKey(trailerJson.getString(KEY));
+                trailer.setName(trailerJson.getString(NAME));
+                trailer.setSite(trailerJson.getString(SITE));
+                trailer.setSize(trailerJson.getInt(SIZE));
+                trailer.setType(trailerJson.getString(TYPE));
+
+                trailers.add(trailer);
+
+            }
+
+        } catch(JSONException e){
+            //TODO
+        }
+
+        return trailers;
+    }
+
+    public static List<Review> getReviewsFromJson(String json){
+        List<Review> reviews = new ArrayList<>();
+        //Review Data:
+        final String AUTHOR = "author";
+        final String CONTENT = "content";
+
+        try{
+            JSONObject reviewsJson = new JSONObject(json);
+            JSONArray reviewsArray = reviewsJson.getJSONArray(RESULTS);
+
+            for(int i = 0; i < reviewsArray.length(); i++){
+                JSONObject reviewJson = reviewsArray.getJSONObject(i);
+                Review review = new Review(
+                        reviewJson.getString(ID),
+                        reviewJson.getString(AUTHOR),
+                        reviewJson.getString(CONTENT));
+
+                reviews.add(review);
+            }
+
+        } catch(JSONException e){
+            //TODO
+        }
+
+        return reviews;
     }
 }
