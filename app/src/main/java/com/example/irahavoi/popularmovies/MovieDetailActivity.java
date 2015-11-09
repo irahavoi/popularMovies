@@ -19,7 +19,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         if(savedInstanceState == null){
             Movie movie = (Movie)getIntent().getSerializableExtra(MovieDetailFragment.SELECTED_MOVIE_ID);
             Bundle arguments = new Bundle();
-            arguments.putParcelable(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
+            arguments.putSerializable(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
             MovieDetailFragment detailFragment = new MovieDetailFragment();
             detailFragment.setArguments(arguments);
 

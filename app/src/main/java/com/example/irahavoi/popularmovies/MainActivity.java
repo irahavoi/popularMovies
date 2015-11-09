@@ -12,8 +12,6 @@ import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.view.MovieDetailFragment;
 import com.example.irahavoi.popularmovies.view.MoviesFragment;
 
-import java.io.Serializable;
-
 public class MainActivity extends AppCompatActivity implements MoviesFragment.Callback, MovieDetailFragment.OnFragmentInteractionListener{
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -60,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
     public void onItemSelected(Uri uri, Movie movie) {
         if(mTwoPane){
             Bundle args = new Bundle();
-            args.putParcelable(MovieDetailFragment.DETAIL_URI, uri);
-            args.putParcelable(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
+            args.putSerializable(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
 
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(args);
@@ -73,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
             Intent intent = new Intent(this, MovieDetailActivity.class)
                     .setData(uri);
 
-            intent.putExtra(MovieDetailFragment.SELECTED_MOVIE_ID, (Serializable)movie);
+            intent.putExtra(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
             startActivity(intent);
 
 

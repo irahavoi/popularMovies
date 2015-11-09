@@ -12,11 +12,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.irahavoi.popularmovies.R;
+import com.example.irahavoi.popularmovies.adapter.MovieReviewAdapter;
+import com.example.irahavoi.popularmovies.adapter.MovieTrailerAdapter;
 import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.domain.Review;
 import com.example.irahavoi.popularmovies.domain.Trailer;
@@ -38,6 +41,9 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     public static final String REVIEWS_EXTRA = "reviewsExtra";
 
     private Activity mActivity;
+    private View mDetailView;
+    private MovieReviewAdapter mMovieReviewAdapter;
+    private MovieTrailerAdapter mMovieTrailerAdapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -81,11 +87,11 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View detailView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+        mDetailView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         if(this.getArguments() != null){
-            detailView.setVisibility(View.VISIBLE);
-            Movie movie = (Movie)this.getArguments().getParcelable(SELECTED_MOVIE_ID);
-            renderMovieDetails(movie, detailView);
+            mDetailView.setVisibility(View.VISIBLE);
+            Movie movie = (Movie)this.getArguments().getSerializable(SELECTED_MOVIE_ID);
+            renderMovieDetails(movie, mDetailView);
 
             registerMetadataBroadCastReceiver();
             startMovieMetadataServices(movie);
@@ -94,7 +100,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         }
 
         // Inflate the layout for this fragment
-        return detailView;
+        return mDetailView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -166,15 +172,15 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     }
 
     public void startMovieMetadataServices(Movie movie){
-        Intent trailersIntent = new Intent(getActivity(), MovieService.class);
-        Intent reviewsIntent = new Intent(getActivity(), MovieService.class);
+        Intent trailersIntent = new Intent(mActivity, MovieService.class);
+        Intent reviewsIntent = new Intent(mActivity, MovieService.class);
 
         trailersIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
         reviewsIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
         trailersIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_TRAILERS);
         reviewsIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_REVIEWS);
-        getActivity().startService(trailersIntent);
-        getActivity().startService(reviewsIntent);
+        mActivity.startService(trailersIntent);
+        mActivity.startService(reviewsIntent);
     }
 
     private void handleBroadcast(Intent intent){
@@ -189,11 +195,27 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
 
     private void handleReviewsBroadcast(Intent intent){
         List<Review> reviews  = (List<Review>)intent.getSerializableExtra(REVIEWS_EXTRA);
-        Toast.makeText(mActivity, "GOT " + reviews.size() + " REVIEWS!", Toast.LENGTH_SHORT).show();
+        mMovieReviewAdapter = new MovieReviewAdapter(mActivity, R.layout.movie_review, reviews);
+        ListView reviewList = (ListView)mDetailView.findViewById(R.id.reviewList);
+        reviewList.setAdapter(mMovieReviewAdapter);
     }
 
     private void handleTrailersBroadcast(Intent intent){
         List<Trailer> trailers  = (List<Trailer>)intent.getSerializableExtra(TRAILERS_EXTRA);
-        Toast.makeText(mActivity, "GOT " + trailers.size() + " TRAILERS!", Toast.LENGTH_SHORT).show();
+        mMovieTrailerAdapter = new MovieTrailerAdapter(mActivity, R.layout.movie_trailer, trailers);
+        ListView trailerList = (ListView)mDetailView.findViewById(R.id.trailerList);
+        trailerList.setAdapter(mMovieTrailerAdapter);
+
+        trailerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                startYoutubeActivity(mMovieTrailerAdapter.getTrailers().get(position).getKey());
+            }
+        });
     }
+
+    private void startYoutubeActivity(String videoId){
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId)));
+    }
+
 }
