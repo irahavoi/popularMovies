@@ -5,8 +5,7 @@ import java.util.List;
 
 
 public class Movie implements Serializable {
-    private Long id;
-    private Boolean adult;
+    private Integer id;
     private List<Long> genreIds;
     private String originalLanguage;
     private String originalTitle;
@@ -19,22 +18,16 @@ public class Movie implements Serializable {
     private Double voteAverage;
     private Integer voteCount;
 
+    private boolean favorite;
+
     public Movie(){}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
-    }
-
-    public Boolean getAdult() {
-        return adult;
-    }
-
-    public void setAdult(Boolean adult) {
-        this.adult = adult;
     }
 
     public List<Long> getGenreIds() {
@@ -123,5 +116,13 @@ public class Movie implements Serializable {
 
     public void setVoteCount(Integer voteCount) {
         this.voteCount = voteCount;
+    }
+
+    public boolean isFavorite() {
+        return favorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        this.favorite = favorite;
     }
 }

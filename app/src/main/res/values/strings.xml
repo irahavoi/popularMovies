@@ -8,8 +8,10 @@
     <string name="pref_sort_by_key">sortBy</string>
     <string name="pref_sort_by_rating">rating</string>
     <string name="pref_sort_by_popularity">popularity</string>
+    <string name="pref_favorites">favorites</string>
     <string name="pref_sort_by_label_rating">Rating</string>
     <string name="pref_sort_by_label_popularity">Popularity</string>
+    <string name="pref_label_favorites">Favorite</string>
     <string name="title_activity_detail">DetailActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
 

@@ -24,6 +24,7 @@ public class MoviePreviewAdapter extends ArrayAdapter<Movie>{
     private int layoutId;
     private LayoutInflater inflater;
     private Drawable mDefaultDrawable;
+    private View mRootView;
 
     public MoviePreviewAdapter(Context context, int layoutId, List<Movie> movies){
         super(context, layoutId, movies);
@@ -40,23 +41,19 @@ public class MoviePreviewAdapter extends ArrayAdapter<Movie>{
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         Movie movie = movies.get(position);
-        final View rootView = inflater.inflate(layoutId, parent, false);
+        mRootView = inflater.inflate(layoutId, parent, false);
 
         //Picasso.with(rootView.getContext()).load
-        ImageView movieThumbnail = (ImageView) rootView.findViewById(R.id.movie_thumbnail);
+        ImageView movieThumbnail = (ImageView) mRootView.findViewById(R.id.movie_thumbnail);
 
 
-        PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), rootView.getContext(), movieThumbnail, mDefaultDrawable);
+        PicassoImageHelper.getImageByPosterPath(movie.getPosterPath(), mRootView.getContext(), movieThumbnail, mDefaultDrawable);
 
 
-        return rootView;
+        return mRootView;
     }
 
     public List<Movie> getMovies() {
         return movies;
-    }
-
-    public void setMovies(List<Movie> movies) {
-        this.movies = movies;
     }
 }

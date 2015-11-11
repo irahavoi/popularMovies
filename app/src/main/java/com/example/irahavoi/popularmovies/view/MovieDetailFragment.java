@@ -13,9 +13,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.irahavoi.popularmovies.R;
 import com.example.irahavoi.popularmovies.adapter.MovieReviewAdapter;
@@ -33,13 +35,15 @@ import static com.example.irahavoi.popularmovies.utility.Constants.SERVICE_OPERA
 
 public class MovieDetailFragment extends android.support.v4.app.Fragment {
     public static final String DETAIL_URI = "URI";
-    public static final String SELECTED_MOVIE_ID = "selectedMovieId";
+    public static final String SELECTED_MOVIE = "selectedMovie";
 
     public static final String RECEIVE_TRAILERS = "com.example.irahavoi.popularmovies.ReceiveTrailers";
     public static final String RECEIVE_REVIEWS = "com.example.irahavoi.popularmovies.ReceiveReviews";
+    public static final String RECEIVE_ADD_TO_FAVORITES_CONFIRMATION = "com.example.irahavoi.popularmovies.AddtoFavoritesConfirmation";
     public static final String TRAILERS_EXTRA = "trailersExtra";
     public static final String REVIEWS_EXTRA = "reviewsExtra";
 
+    private Movie movie;
     private Activity mActivity;
     private View mDetailView;
     private MovieReviewAdapter mMovieReviewAdapter;
@@ -50,27 +54,11 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
     private BroadcastReceiver movieMetadataBroadCastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getAction().equals(RECEIVE_REVIEWS) || intent.getAction().equals(RECEIVE_TRAILERS)){
-                MovieDetailFragment.this.handleBroadcast(intent);
-            }
+            MovieDetailFragment.this.handleBroadcast(intent);
+
         }
     };
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MovieDetailFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MovieDetailFragment newInstance(String param1, String param2) {
-        MovieDetailFragment fragment = new MovieDetailFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public MovieDetailFragment() {
         // Required empty public constructor
@@ -90,7 +78,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         mDetailView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
         if(this.getArguments() != null){
             mDetailView.setVisibility(View.VISIBLE);
-            Movie movie = (Movie)this.getArguments().getSerializable(SELECTED_MOVIE_ID);
+            movie = (Movie)this.getArguments().getSerializable(SELECTED_MOVIE);
             renderMovieDetails(movie, mDetailView);
 
             registerMetadataBroadCastReceiver();
@@ -143,7 +131,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    private void renderMovieDetails(Movie movie, View detailView){
+    private void renderMovieDetails(final Movie movie, View detailView){
         ImageView thumbnailView = (ImageView)detailView.findViewById(R.id.movie_thumbnail);
         TextView titleView = (TextView)detailView.findViewById(R.id.originalTitle);
         TextView overviewView = (TextView)detailView.findViewById(R.id.overview);
@@ -161,6 +149,24 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         ratingView.setText(rating);
         String date = movie.getReleaseDate() != null ? movie.getReleaseDate().substring(0, movie.getReleaseDate().indexOf("-")) : "";
         releaseDateView.setText(date);
+
+        Button addToFavoritesBtn = (Button) detailView.findViewById(R.id.addToFavoritesButton);
+
+        if(movie.isFavorite()){
+            addToFavoritesBtn.setVisibility(View.INVISIBLE);
+        } else{
+            addToFavoritesBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mActivity, MovieService.class);
+                    Movie m = movie;
+                    intent.putExtra(SELECTED_MOVIE, m);
+                    intent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.ADD_MOVIE_TO_FAVORITES);
+                    getActivity().startService(intent);
+                    Toast.makeText(mActivity, "Added " + m.getOriginalTitle() + " to favorites!", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     public void registerMetadataBroadCastReceiver(){
@@ -168,6 +174,7 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(RECEIVE_TRAILERS);
         intentFilter.addAction(RECEIVE_REVIEWS);
+        intentFilter.addAction(RECEIVE_ADD_TO_FAVORITES_CONFIRMATION);
         localBroadcastManager.registerReceiver(movieMetadataBroadCastReceiver, intentFilter);
     }
 
@@ -175,8 +182,8 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
         Intent trailersIntent = new Intent(mActivity, MovieService.class);
         Intent reviewsIntent = new Intent(mActivity, MovieService.class);
 
-        trailersIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
-        reviewsIntent.putExtra(SELECTED_MOVIE_ID, movie.getId());
+        trailersIntent.putExtra(SELECTED_MOVIE, movie.getId());
+        reviewsIntent.putExtra(SELECTED_MOVIE, movie.getId());
         trailersIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_TRAILERS);
         reviewsIntent.putExtra(SERVICE_OPERATION_NAME, MovieServiceOperation.GET_MOVIE_REVIEWS);
         mActivity.startService(trailersIntent);
@@ -189,6 +196,9 @@ public class MovieDetailFragment extends android.support.v4.app.Fragment {
             handleReviewsBroadcast(intent);
         } else if(RECEIVE_TRAILERS.equals(action)){
             handleTrailersBroadcast(intent);
+        } else if(RECEIVE_ADD_TO_FAVORITES_CONFIRMATION.equals(action)){
+            Button addTofavoritesBtn = (Button)mDetailView.findViewById(R.id.addToFavoritesButton);
+            addTofavoritesBtn.setVisibility(View.INVISIBLE);
         }
 
     }

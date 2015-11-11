@@ -6,5 +6,6 @@ package com.example.irahavoi.popularmovies.utility;
 public enum MovieServiceOperation {
     GET_MOVIES,
     GET_MOVIE_TRAILERS,
-    GET_MOVIE_REVIEWS;
+    GET_MOVIE_REVIEWS,
+    ADD_MOVIE_TO_FAVORITES;
 }

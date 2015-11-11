@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
     public void onItemSelected(Uri uri, Movie movie) {
         if(mTwoPane){
             Bundle args = new Bundle();
-            args.putSerializable(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
+            args.putSerializable(MovieDetailFragment.SELECTED_MOVIE, movie);
 
             MovieDetailFragment fragment = new MovieDetailFragment();
             fragment.setArguments(args);
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.Ca
             Intent intent = new Intent(this, MovieDetailActivity.class)
                     .setData(uri);
 
-            intent.putExtra(MovieDetailFragment.SELECTED_MOVIE_ID, movie);
+            intent.putExtra(MovieDetailFragment.SELECTED_MOVIE, movie);
             startActivity(intent);
 
 

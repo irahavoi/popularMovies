@@ -45,6 +45,7 @@
                         android:text="@string/out_of_ten" />
                 </LinearLayout>
                 <Button
+                    android:id="@+id/addToFavoritesButton"
                     style="@style/FavoriteButton"
                     android:background="@drawable/buttonshape"
                     android:text="@string/markAsFavorite"/>

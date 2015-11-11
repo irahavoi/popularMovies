@@ -41,8 +41,4 @@ public class MovieTrailerAdapter extends ArrayAdapter<Trailer>{
     public List<Trailer> getTrailers() {
         return trailers;
     }
-
-    public void setTrailers(List<Trailer> trailers) {
-        this.trailers = trailers;
-    }
 }

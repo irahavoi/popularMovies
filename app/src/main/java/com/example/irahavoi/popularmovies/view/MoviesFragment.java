@@ -1,5 +1,6 @@
 package com.example.irahavoi.popularmovies.view;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,6 +39,8 @@ public class MoviesFragment extends Fragment {
 
     private MoviePreviewAdapter mMoviePreviewAdapter;
     private String mOrderByPref;
+    private Activity mActivity;
+    private View mView;
 
     private BroadcastReceiver movieBroadCastReceiver = new BroadcastReceiver() {
         @Override
@@ -52,8 +55,9 @@ public class MoviesFragment extends Fragment {
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         registerMoviesBroadCastReceiver();
         startMovieService();
-
-        return inflater.inflate(R.layout.movie_previews_fragment, container, false);
+        mActivity = getActivity();
+        mView = inflater.inflate(R.layout.movie_previews_fragment, container, false);
+        return mView;
 
     }
 
@@ -64,14 +68,13 @@ public class MoviesFragment extends Fragment {
     }
 
     private void renderMoviePreviews(List<Movie>  movies){
-        GridView gridView = (GridView)getView();
-        mMoviePreviewAdapter = new MoviePreviewAdapter(getActivity(), R.layout.movie_preview, movies);
+        GridView gridView = (GridView)mView;
+        mMoviePreviewAdapter = new MoviePreviewAdapter(mActivity, R.layout.movie_preview, movies);
         gridView.setAdapter(mMoviePreviewAdapter);
 
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //TODO: pass URI
                 Movie movie = mMoviePreviewAdapter.getMovies().get(position);
                 ((Callback) getActivity()).onItemSelected(null, movie);
             }

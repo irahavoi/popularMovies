@@ -11,27 +11,14 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.*;
+
 public class JsonUtility {
     private final static String RESULTS = "results";
     private final static String ID = "id";
 
     public static List<Movie> getMoviesFromJson(String json){
         List<Movie> movies = new ArrayList<>();
-
-        //Movie Data:
-        final String ADULT = "adult";
-        final String GENRE_IDS = "genre_ids";
-        final String ORIGINAL_LANGUAGE = "original_language";
-        final String ORIGINAL_TITLE = "original_title";
-        final String OVERVIEW = "overview";
-        final String RELEASE_DATE = "release_date";
-        final String POSTER_PATH = "poster_path";
-        final String POPULARITY = "popularity";
-        final String TITLE = "title";
-        final String VIDEO = "video";
-        final String VOTE_AVERAGE = "vote_average";
-        final String VOTE_COUNT =  "vote_count";
-
 
         try{
             JSONObject moviesJson = new JSONObject(json);
@@ -41,8 +28,7 @@ public class JsonUtility {
                 Movie movie = new Movie();
                 JSONObject movieJson = moviesArray.getJSONObject(i);
 
-                movie.setAdult(movieJson.getBoolean(ADULT));
-                movie.setId(movieJson.getLong(ID));
+                movie.setId(movieJson.getInt(ID));
                 movie.setOriginalLanguage(movieJson.getString(ORIGINAL_LANGUAGE));
                 movie.setOriginalTitle(movieJson.getString(ORIGINAL_TITLE));
                 movie.setOverview(movieJson.getString(OVERVIEW));
@@ -53,17 +39,6 @@ public class JsonUtility {
                 movie.setVideo(movieJson.getBoolean(VIDEO));
                 movie.setVoteAverage(movieJson.getDouble(VOTE_AVERAGE));
                 movie.setVoteCount(movieJson.getInt(VOTE_COUNT));
-
-
-                JSONArray genreIdsJson = movieJson.getJSONArray(GENRE_IDS);
-                List<Long> genreIds = new ArrayList<>();
-
-                for(int j = 0; j < genreIdsJson.length(); j++){
-                    genreIds.add(genreIdsJson.getLong(j));
-                }
-
-                movie.setGenreIds(genreIds);
-
                 movies.add(movie);
 
             }

@@ -1,13 +1,17 @@
 package com.example.irahavoi.popularmovies.service;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.example.irahavoi.popularmovies.BuildConfig;
 import com.example.irahavoi.popularmovies.R;
+import com.example.irahavoi.popularmovies.data.MoviesContentProvider;
 import com.example.irahavoi.popularmovies.domain.Movie;
 import com.example.irahavoi.popularmovies.domain.Review;
 import com.example.irahavoi.popularmovies.domain.Trailer;
@@ -25,6 +29,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.ORIGINAL_LANGUAGE;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.ORIGINAL_TITLE;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.OVERVIEW;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.POPULARITY;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.POSTER_PATH;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.RELEASE_DATE;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.TITLE;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.VIDEO;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.VOTE_AVERAGE;
+import static com.example.irahavoi.popularmovies.data.MovieContract.MovieEntry.VOTE_COUNT;
 import static com.example.irahavoi.popularmovies.utility.Constants.SERVICE_OPERATION_NAME;
 
 public class MovieService extends IntentService{
@@ -55,9 +69,45 @@ public class MovieService extends IntentService{
             case GET_MOVIE_REVIEWS:
                 getMovieReviews(intent);
                 break;
+            case ADD_MOVIE_TO_FAVORITES:
+                addMovieToFavorites(intent);
+                break;
             default:
                 throw new IllegalArgumentException("Illegal operation: " + operation);
         }
+    }
+
+    private void addMovieToFavorites(Intent intent){
+        Movie movie = (Movie)intent.getSerializableExtra(MovieDetailFragment.SELECTED_MOVIE);
+        //Check if the movie has already been added:
+        Cursor movieCursor = this.getContentResolver().query(
+                MoviesContentProvider.CONTENT_URI,
+                new String[]{BaseColumns._ID},
+                BaseColumns._ID + " = ?",
+                new String[]{movie.getId().toString()},
+                null);
+
+        if(!movieCursor.moveToFirst()){
+            ContentValues movieValues = new ContentValues();
+            movieValues.put(BaseColumns._ID, movie.getId());
+            movieValues.put(ORIGINAL_LANGUAGE, movie.getOriginalLanguage());
+            movieValues.put(ORIGINAL_TITLE, movie.getOriginalTitle());
+            movieValues.put(OVERVIEW, movie.getOverview());
+            movieValues.put(RELEASE_DATE, movie.getReleaseDate());
+            movieValues.put(POSTER_PATH, movie.getPosterPath());
+            movieValues.put(POPULARITY, movie.getPopularity());
+            movieValues.put(TITLE, movie.getTitle());
+            movieValues.put(VIDEO, movie.isVideo());
+            movieValues.put(VOTE_AVERAGE, movie.getVoteAverage());
+            movieValues.put(VOTE_COUNT, movie.getVoteCount());
+
+            Uri insertUri = this.getContentResolver().insert(MoviesContentProvider.CONTENT_URI,
+                    movieValues);
+        }
+
+        Intent addedToFavoriteConfirmationIntent = new Intent(MovieDetailFragment.RECEIVE_ADD_TO_FAVORITES_CONFIRMATION);
+        addedToFavoriteConfirmationIntent.putExtra(MovieDetailFragment.SELECTED_MOVIE, movie);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(addedToFavoriteConfirmationIntent);
     }
 
     private void getMovies(Intent intent){
@@ -69,49 +119,54 @@ public class MovieService extends IntentService{
         try{
 
             String orderByPreference = intent.getStringExtra(MoviesFragment.ORDER_BY_PREFERENCE_EXTRA);
-            String sortBy = "popularity.desc";
-            if(orderByPreference.equals(getString(R.string.pref_sort_by_rating))){
+            String sortBy = null;
+
+            if(orderByPreference.equals(getString(R.string.pref_favorites))){
+                getFavoriteMovies();
+            } else if(orderByPreference.equals(getString(R.string.pref_sort_by_rating))){
                 sortBy = "vote_average.desc";
+            } else if(orderByPreference.equals(getString(R.string.pref_sort_by_popularity))){
+                sortBy = "popularity.desc";
             }
 
-            Uri uri = Uri.parse(SEARCH_MOVIES_URI).buildUpon()
-                    .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DB_API_KEY)
-                    .appendQueryParameter(SORT_BY_PARAM, sortBy)
-                    .build();
+            if(sortBy != null){
+                Uri uri = Uri.parse(SEARCH_MOVIES_URI).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, BuildConfig.MOVIE_DB_API_KEY)
+                        .appendQueryParameter(SORT_BY_PARAM, sortBy)
+                        .build();
 
-            URL url = new URL(uri.toString());
+                URL url = new URL(uri.toString());
 
-            // Create the request to OpenWeatherMap, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
+                // Create the request to OpenWeatherMap, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
 
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return;
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return;
+                }
+                moviesJsonStr = buffer.toString();
+                List<Movie> movies = JsonUtility.getMoviesFromJson(moviesJsonStr);
+
+                Intent moviesResponseIntent = new Intent(MoviesFragment.RECEIVE_MOVIES);
+                moviesResponseIntent.putExtra(MoviesFragment.MOVIES_EXTRA, (ArrayList)movies);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(moviesResponseIntent);
             }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line + "\n");
-            }
-
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return;
-            }
-            moviesJsonStr = buffer.toString();
-            List<Movie> movies = JsonUtility.getMoviesFromJson(moviesJsonStr);
-
-            Intent moviesResponseIntent = new Intent(MoviesFragment.RECEIVE_MOVIES);
-            moviesResponseIntent.putExtra(MoviesFragment.MOVIES_EXTRA, (ArrayList)movies);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(moviesResponseIntent);
-
-
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -130,8 +185,41 @@ public class MovieService extends IntentService{
         return;
     }
 
+    public void getFavoriteMovies(){
+        Cursor cursor = getContentResolver().query(MoviesContentProvider.CONTENT_URI, null, null, null, null);
+        if(cursor != null){
+            List<Movie> movies = new ArrayList<>();
+            if(cursor.moveToFirst()){
+                do{
+                    Movie movie = new Movie();
+                    movie.setFavorite(true);
+                    movie.setId(cursor.getInt(0));
+                    movie.setOriginalLanguage(cursor.getString(1));
+                    movie.setOriginalTitle(cursor.getString(2));
+                    movie.setOverview(cursor.getString(3));
+                    movie.setReleaseDate(cursor.getString(4));
+                    movie.setPosterPath(cursor.getString(5));
+                    movie.setPopularity(cursor.getDouble(6));
+                    movie.setTitle(cursor.getString(7));
+                    movie.setVideo(cursor.getInt(8) > 0);
+                    movie.setVoteAverage(cursor.getDouble(9));
+                    movie.setVoteCount(cursor.getInt(10));
+
+                    movies.add(movie);
+                } while(cursor.moveToNext());
+
+            }
+
+            cursor.close();
+
+            Intent moviesResponseIntent = new Intent(MoviesFragment.RECEIVE_MOVIES);
+            moviesResponseIntent.putExtra(MoviesFragment.MOVIES_EXTRA, (ArrayList) movies);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(moviesResponseIntent);
+        }
+    }
+
     public void getMovieTrailers(Intent intent){
-        Long movieId = intent.getLongExtra(MovieDetailFragment.SELECTED_MOVIE_ID, -1L);
+        Integer movieId = intent.getIntExtra(MovieDetailFragment.SELECTED_MOVIE, -1);
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
@@ -191,7 +279,7 @@ public class MovieService extends IntentService{
     }
 
     public void getMovieReviews(Intent intent){
-        Long movieId = intent.getLongExtra(MovieDetailFragment.SELECTED_MOVIE_ID, -1L);
+        Integer movieId = intent.getIntExtra(MovieDetailFragment.SELECTED_MOVIE, -1);
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
 
